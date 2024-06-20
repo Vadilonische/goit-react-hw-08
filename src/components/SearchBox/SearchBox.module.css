@@ -1,0 +1,13 @@
+.searchInput {
+  width: 250px;
+  height: 25px;
+  padding: 8px;
+  border: 1px solid #000;
+  border-radius: 3px;
+}
+.searchLable {
+  margin: 0;
+}
+.searchBox {
+  margin-bottom: 20px;
+}
