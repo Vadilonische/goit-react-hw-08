@@ -1,7 +1,6 @@
 import { useDispatch } from "react-redux";
 import css from "./Contact.module.css";
 
-// import { deleteContact } from "../../redux/contacts/operations";
 import { setActiveContact } from "../../redux/contacts/slice";
 
 export default function Contact({ contact, modalOpenDelete }) {

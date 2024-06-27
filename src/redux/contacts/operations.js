@@ -52,16 +52,3 @@ export const editContact = createAsyncThunk(
     }
   }
 );
-
-// const filterContacts = (contacts, filter) => {
-//   return contacts.filter(
-//     (contact) =>
-//       contact.name.toLowerCase().includes(filter.toLowerCase()) ||
-//       contact.number.includes(filter)
-//   );
-// };
-
-// export const filteredContacts = createSelector(
-//   [selectContacts, selectFilter],
-//   (contacts, filter) => filterContacts(contacts, filter)
-// );
