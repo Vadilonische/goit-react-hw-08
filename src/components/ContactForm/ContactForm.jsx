@@ -1,9 +1,10 @@
 import css from "./ContactForm.module.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { useId } from "react";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
-import { addContact } from "../../redux/contactsOps";
+import { addContact } from "../../redux/contacts/operations";
+import toast from "react-hot-toast";
+import { useId } from "react";
 
 export default function ContactForm() {
   const initialValues = {
@@ -11,8 +12,7 @@ export default function ContactForm() {
     number: "",
   };
 
-  const nameFieldId = useId();
-  const numberFieldId = useId();
+  const id = useId();
 
   const dispatch = useDispatch();
 
@@ -21,7 +21,16 @@ export default function ContactForm() {
       name: values.name,
       number: values.number,
     };
-    dispatch(addContact(newContact));
+    dispatch(addContact(newContact))
+      .unwrap()
+      .then(() => {
+        toast.success("Успішно додано!", { position: "top-center" });
+      })
+      .catch(() => {
+        toast.error("Не коректно введені данні! ", {
+          position: "top-center",
+        });
+      });
     actions.resetForm();
   };
 
@@ -46,22 +55,22 @@ export default function ContactForm() {
     >
       <Form className={css.formAddContact}>
         <div className={css.formInput}>
-          <label htmlFor={nameFieldId}>Name</label>
+          <label htmlFor={`${id}+name`}>Name</label>
           <Field
             className={css.formInputAdd}
             type="text"
             name="name"
-            id={nameFieldId}
+            id={`${id}+name`}
           />
           <ErrorMessage name="name" component="span" />
         </div>
         <div className={css.formInput}>
-          <label htmlFor={numberFieldId}>Number</label>
+          <label htmlFor={`${id}+phone`}>Number</label>
           <Field
             className={css.formInputAdd}
             type="text"
             name="number"
-            id={numberFieldId}
+            id={`${id}+phone`}
           />
           <ErrorMessage name="number" component="span" />
         </div>

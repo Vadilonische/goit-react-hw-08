@@ -1,6 +1,13 @@
 import { createSelector, createSlice } from "@reduxjs/toolkit";
-import { addContact, deleteContact, fetchContacts } from "./contactsOps";
-import { selectContacts, selectFilter } from "./selectors";
+import {
+  addContact,
+  deleteContact,
+  editContact,
+  fetchContacts,
+} from "./operations";
+import { selectContacts } from "./selectors";
+import { selectFilter } from "../filters/selectors";
+import { logOut } from "../auth/operations";
 
 export const handlePending = (state) => {
   state.isLoading = true;
@@ -17,6 +24,18 @@ const contactsSlice = createSlice({
     items: [],
     isLoading: false,
     error: null,
+    isModalOpen: false,
+    activeContact: null,
+  },
+  reducers: {
+    setActiveContact(state, action) {
+      state.activeContact = action.payload;
+      state.isModalOpen = true;
+    },
+    clearActiveContact(state) {
+      state.activeContact = null;
+      state.isModalOpen = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -43,13 +62,37 @@ const contactsSlice = createSlice({
           (task) => task.id === action.payload.id
         );
         state.items.splice(index, 1);
+      })
+      .addCase(editContact.rejected, handleRejected)
+      .addCase(editContact.pending, handlePending)
+      .addCase(editContact.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        const index = state.items.findIndex(
+          (task) => task.id === action.payload.id
+        );
+        state.items[index] = action.payload;
+      })
+      .addCase(logOut.fulfilled, (state) => {
+        state.items = [];
+        state.error = null;
+        state.isLoading = false;
       });
   },
 });
+
+export const { setActiveContact, clearActiveContact, toggleModal } =
+  contactsSlice.actions;
 
 export const contactReducer = contactsSlice.reducer;
 
 export const selectFilteredContacts = createSelector(
   [selectContacts, selectFilter],
-  (contacts, filter) => filteredContacts(contacts, filter)
+  (contacts, filter) => {
+    return contacts.filter(
+      (contact) =>
+        contact.name.toLowerCase().includes(filter.toLowerCase()) ||
+        contact.number.includes(filter)
+    );
+  }
 );
