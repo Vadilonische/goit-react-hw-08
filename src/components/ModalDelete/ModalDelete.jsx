@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
+import { deleteContact } from "../../redux/contacts/operations";
 
 const ModalDelete = ({ open, close, id }) => {
   const dispatch = useDispatch();

@@ -3,13 +3,14 @@ import css from "./Contact.module.css";
 
 import { setActiveContact } from "../../redux/contacts/slice";
 
-export default function Contact({ contact, modalOpenDelete }) {
+export default function Contact({ contact, modalOpenDelete, modalOpenEdit }) {
   const dispatch = useDispatch();
 
   const { name, number, id } = contact;
 
   const handleEdit = () => {
     dispatch(setActiveContact({ name, number, id }));
+    modalOpenEdit(id);
   };
 
   const handleDelete = () => {

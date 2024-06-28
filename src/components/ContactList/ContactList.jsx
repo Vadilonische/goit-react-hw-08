@@ -4,10 +4,12 @@ import { useSelector } from "react-redux";
 import { selectError, selectIsLoading } from "../../redux/contacts/selectors";
 import { selectFilteredContacts } from "../../redux/contacts/slice";
 import ModalDelete from "../ModalDelete/ModalDelete";
+import ModalEdit from "../ModalEdit/ModalEdit";
 import { useState } from "react";
 
 const ContactList = () => {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
+  const [modalEditOpen, setModalEditOpen] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState(null);
 
   const isLoading = useSelector(selectIsLoading);
@@ -16,12 +18,22 @@ const ContactList = () => {
 
   const openModalDelete = (id) => {
     setSelectedContactId(id);
-    setModalOpen(true);
+    setModalDeleteOpen(true);
   };
 
   const closeModalDelete = () => {
     setSelectedContactId(null);
-    setModalOpen(false);
+    setModalDeleteOpen(false);
+  };
+
+  const openModalEdit = (id) => {
+    setSelectedContactId(id);
+    setModalEditOpen(true);
+  };
+
+  const closeModalEdit = () => {
+    setSelectedContactId(null);
+    setModalEditOpen(false);
   };
 
   return (
@@ -30,13 +42,22 @@ const ContactList = () => {
       {contacts.map((contact) => {
         return (
           <li key={contact.id} className={css.contactItem}>
-            <Contact contact={contact} modalOpenDelete={openModalDelete} />
+            <Contact
+              contact={contact}
+              modalOpenDelete={openModalDelete}
+              modalOpenEdit={openModalEdit}
+            />
           </li>
         );
       })}
       <ModalDelete
-        open={modalOpen}
+        open={modalDeleteOpen}
         close={closeModalDelete}
+        id={selectedContactId}
+      />
+      <ModalEdit
+        open={modalEditOpen}
+        close={closeModalEdit}
         id={selectedContactId}
       />
     </ul>

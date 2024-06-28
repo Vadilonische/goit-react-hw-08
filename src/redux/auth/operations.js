@@ -2,7 +2,6 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 axios.defaults.baseURL = "https://connections-api.herokuapp.com";
-// axios.defaults.baseURL = "https://connections-api.goit.global/";
 
 const setAuthHeader = (token) => {
   axios.defaults.headers.common.Authorization = `Bearer ${token}`;
@@ -52,11 +51,18 @@ export const refreshUser = createAsyncThunk(
   async (_, thunkAPI) => {
     const state = thunkAPI.getState();
     const persistedToken = state.auth.token;
+
+    if (!persistedToken || typeof persistedToken !== "string") {
+      return thunkAPI.rejectWithValue("No valid token found");
+    }
+
     try {
       setAuthHeader(persistedToken);
+
       const response = await axios.get("/users/current");
       return response.data;
     } catch (error) {
+      clearAuthHeader();
       return thunkAPI.rejectWithValue(error.message);
     }
   },
@@ -64,7 +70,7 @@ export const refreshUser = createAsyncThunk(
     condition: (_, { getState }) => {
       const state = getState();
       const persistedToken = state.auth.token;
-      if (persistedToken === null) {
+      if (!persistedToken || typeof persistedToken !== "string") {
         return false;
       }
       return true;

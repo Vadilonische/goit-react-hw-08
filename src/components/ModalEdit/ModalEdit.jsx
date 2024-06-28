@@ -1,10 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
-  selectActiveContact,
-  selectIsOpen,
-} from "../../redux/contacts/selectors";
-import { useId } from "react";
-import {
   Box,
   Button,
   Dialog,
@@ -16,13 +11,14 @@ import { clearActiveContact } from "../../redux/contacts/slice";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { toast } from "react-hot-toast";
 import { editContact } from "../../redux/contacts/operations";
+import * as Yup from "yup";
 
-const ModalEdit = () => {
+const ModalEdit = ({ open, close, id }) => {
   const dispatch = useDispatch();
 
-  const activeContact = useSelector(selectActiveContact);
-  const isOpen = useSelector(selectIsOpen);
-  const id = useId();
+  const activeContact = useSelector((state) =>
+    state.contacts.items.find((contact) => contact.id === id)
+  );
 
   const ContactSchema = Yup.object().shape({
     name: Yup.string()
@@ -40,29 +36,32 @@ const ModalEdit = () => {
   const handleSubmit = (values, actions) => {
     dispatch(
       editContact({
-        id: id,
-        name: values.username,
+        id: activeContact.id,
+        name: values.name,
         number: values.number,
       })
     )
       .unwrap()
       .then(() => {
-        toast.success("Данні успішно оновлено!", { position: "top-center" });
+        toast.success("Дані успішно оновлено!", { position: "top-center" });
+        close();
       })
       .catch(() => {
-        toast.error("Йой, помилка! Введіть правильні данні!", {
+        toast.error("Йой, помилка! Введіть правильні дані!", {
           position: "top-center",
         });
       });
     actions.resetForm();
+    dispatch(clearActiveContact());
   };
+
   const initialValues = {
-    username: activeContact.name || "",
-    number: activeContact.number || "",
+    name: activeContact?.name || "",
+    number: activeContact?.number || "",
   };
 
   return (
-    <Dialog open={open} onClose={clearActiveContact}>
+    <Dialog open={open} onClose={close}>
       <DialogContent>
         <DialogContentText>Виправити контакт!</DialogContentText>
       </DialogContent>
@@ -71,28 +70,30 @@ const ModalEdit = () => {
         validationSchema={ContactSchema}
         onSubmit={handleSubmit}
       >
-        <Form className={css.formContainer}>
-          <Box className={css.box}>
-            <label htmlFor={`${id}+name`}>Name</label>
-            <div>
-              <Field type="text" name="name" id={`${id}+name`} />
-              <ErrorMessage name="name" component="div" />
-            </div>
-            <label htmlFor={`${id}+phone`}>Phone</label>
-            <div>
-              <Field type="text" name="number" id={`${id}+phone`} />
-              <ErrorMessage name="number" component="div" />
-            </div>
-            <DialogActions>
-              <Button onClick={close} color="primary">
-                Cancel
-              </Button>
-              <Button onClick={handleSubmit} color="primary" autoFocus>
-                Save
-              </Button>
-            </DialogActions>
-          </Box>
-        </Form>
+        {({ handleSubmit }) => (
+          <Form>
+            <Box>
+              <label htmlFor={`name`}>Name</label>
+              <div>
+                <Field type="text" name="name" id={`name`} />
+                <ErrorMessage name="name" component="div" />
+              </div>
+              <label htmlFor={`phone`}>Phone</label>
+              <div>
+                <Field type="text" name="number" id={`phone`} />
+                <ErrorMessage name="number" component="div" />
+              </div>
+              <DialogActions>
+                <Button onClick={close} color="primary">
+                  Cancel
+                </Button>
+                <Button type="submit" color="primary" autoFocus>
+                  Save
+                </Button>
+              </DialogActions>
+            </Box>
+          </Form>
+        )}
       </Formik>
     </Dialog>
   );
